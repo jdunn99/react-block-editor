@@ -3,7 +3,7 @@ import { HeadingData } from "./headingSlice";
 import { TextData } from "./textSlice";
 import { Editor } from "./editorStore";
 
-export type BlockType = "text" | "image" | "list";
+export type BlockType = "text" | "heading" | "image" | "list";
 export type BlockData = TextData | HeadingData;
 
 export interface Block {
@@ -13,6 +13,7 @@ export interface Block {
 }
 
 export interface BlockSlice {
+  // changeBlockTag(): void
   getBlocks(): Block[];
   deleteBlock(index: number): void;
   getBlockById(id: string): Block | undefined;
@@ -31,6 +32,30 @@ export function addBlock<T>(
     data: data as BlockData,
     type,
   });
+
+  return {
+    blocks,
+  };
+}
+
+export function updateBlock<T>(
+  state: Editor,
+  data: T,
+  index: number,
+  type: BlockType
+) {
+  if (index < 0 || index > state.blocks.length - 1) {
+    throw new Error("Invalid index range");
+  }
+
+  const blocks = [...state.blocks];
+  const block = blocks[index];
+
+  if (block.type !== type) {
+    throw new Error("Mismatched block type");
+  }
+
+  block.data = data as BlockData;
 
   return {
     blocks,

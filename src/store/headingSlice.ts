@@ -1,6 +1,7 @@
 import { StateCreator } from "zustand";
 import { TextData } from "./textSlice";
 import { Editor } from "./editorStore";
+import { addBlock, updateBlock } from "./blockSlice";
 
 export type HeadingData = {
   level: number;
@@ -12,24 +13,11 @@ export interface HeadingSlice {
 }
 
 export const createHeadingSlice: StateCreator<Editor, [], [], HeadingSlice> = (
-  set,
-  get
+  set
 ) => ({
-  addHeadingBlock(index, data) {
-    return set((state) => ({
-      blocks: state.blocks.splice(index + 1, 0, {
-        id: crypto.randomUUID(),
-        data,
-        type: "text",
-      }),
-    }));
-  },
-  updateHeadingBlock(index, data) {
-    const block = get().getBlockByIndex(index);
-    if (!block || block.type !== "text") {
-      return;
-    }
+  addHeadingBlock: (index, data) =>
+    set((state) => addBlock(state, data, index, "text")),
 
-    block.data = data;
-  },
+  updateHeadingBlock: (index, data) =>
+    set((state) => updateBlock(state, data, index, "heading")),
 });

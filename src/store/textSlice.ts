@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { Editor } from "./editorStore";
-import { addBlock } from "./blockSlice";
+import { addBlock, updateBlock } from "./blockSlice";
 
 export type TextData = {
   text: string;
@@ -12,18 +12,11 @@ export interface TextSlice {
 }
 
 export const createTextSlice: StateCreator<Editor, [], [], TextSlice> = (
-  set,
-  get
+  set
 ) => ({
   addTextBlock: (index, data) =>
     set((state) => addBlock(state, data, index, "text")),
 
-  updateTextBlock(index, data) {
-    const block = get().getBlockByIndex(index);
-    if (!block || block.type !== "text") {
-      return;
-    }
-
-    block.data = data;
-  },
+  updateTextBlock: (index, data) =>
+    set((state) => updateBlock(state, data, index, "text")),
 });

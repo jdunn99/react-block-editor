@@ -1,39 +1,18 @@
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import { useEditorStore } from "./store/editorStore";
+import { Editor } from "./components/editor";
 
 function App() {
-  const blocks = useEditorStore((store) => store.blocks);
-  const addText = useEditorStore((store) => store.addTextBlock);
-
   return (
     <>
-      <div>
-        {JSON.stringify(blocks)}
-        <button
-          onClick={() =>
-            addText(0, {
-              text: "Test Block",
-            })
-          }
-        ></button>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Editor
+        blocks={[
+          {
+            data: { text: "This is a test", level: 1 },
+            id: crypto.randomUUID(),
+            type: "heading",
+          },
+        ]}
+      />
     </>
   );
 }
