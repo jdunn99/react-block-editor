@@ -1,44 +1,14 @@
 import { create } from "zustand";
+import { BlockSlice, createBlockSlice } from "./blockSlice";
+import { TextSlice, createTextSlice } from "./textSlice";
+import { HeadingSlice, createHeadingSlice } from "./headingSlice";
+import { EditorSlice, createEditorSlice } from "./editorSlice";
 
-type BlockType = "text" | "image" | "list";
-type BlockData = TextData | HeadingData;
+export type Editor = BlockSlice & EditorSlice & TextSlice & HeadingSlice;
 
-interface Block {
-  id: number;
-  type: BlockType;
-  data: BlockData;
-}
-
-type EditorMode = "edit" | "view";
-
-type TextData = {
-  text: string;
-};
-
-type HeadingData = {
-  text: string;
-  level: number;
-};
-
-interface BlockSlice {
-  addBlock(block: Block): void;
-  getBlocks(): Block[];
-  deleteBlock(index: number): void;
-  getBlockById(id: string): Block;
-  getBlockByIndex(index: number): Block;
-}
-
-interface TextSlice {
-  updateTextBlock(index: number, data: TextData): void;
-  updateHeadingBlock(index: number, data: HeadingData): void;
-}
-
-interface EditorSlice {
-  blocks: Block[];
-  index: number;
-  mode: EditorMode;
-}
-
-export type Editor = BlockSlice & EditorSlice & TextSlice;
-
-export const useEditorStore = create<Editor>();
+export const useEditorStore = create<Editor>()((...a) => ({
+  ...createEditorSlice(...a),
+  ...createBlockSlice(...a),
+  ...createHeadingSlice(...a),
+  ...createTextSlice(...a),
+}));
