@@ -1,6 +1,7 @@
 import React from "react";
 import { Block } from "../store/blockSlice";
 import { useTextBlock } from "../lib/useTextBlock";
+import { TextData } from "@/store/textSlice";
 
 interface BlockParagraphProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
@@ -20,7 +21,7 @@ export const BlockParagraph = React.forwardRef<
       contentEditable
       onBlur={onBlur}
       onKeyDown={onKeyDown}
-      dangerouslySetInnerHTML={{ __html: block.data.text }}
+      dangerouslySetInnerHTML={{ __html: (block.data as TextData).text }}
       {...rest}
     />
   );

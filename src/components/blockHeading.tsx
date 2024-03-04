@@ -22,7 +22,7 @@ export const BlockHeading = React.forwardRef<
     contentEditable: true,
     autoFocus: true,
     dangerouslySetInnerHTML: {
-      __html: block.data.text,
+      __html: (block.data as HeadingData).text,
     },
     ...rest,
   });

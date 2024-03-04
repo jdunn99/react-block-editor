@@ -2,9 +2,10 @@ import { StateCreator } from "zustand";
 import { HeadingData } from "./headingSlice";
 import { TextData } from "./textSlice";
 import { Editor } from "./editorStore";
+import { ListData } from "./listSlice";
 
 export type BlockType = "text" | "heading" | "image" | "list";
-export type BlockData = TextData | HeadingData;
+export type BlockData = TextData | HeadingData | ListData;
 
 export interface Block {
   id: string;

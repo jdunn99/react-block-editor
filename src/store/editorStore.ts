@@ -3,8 +3,13 @@ import { BlockSlice, createBlockSlice } from "./blockSlice";
 import { TextSlice, createTextSlice } from "./textSlice";
 import { HeadingSlice, createHeadingSlice } from "./headingSlice";
 import { EditorSlice, createEditorSlice } from "./editorSlice";
+import { ListSlice, createListSlice } from "./listSlice";
 
-export type Editor = BlockSlice & EditorSlice & TextSlice & HeadingSlice;
+export type Editor = BlockSlice &
+  EditorSlice &
+  TextSlice &
+  HeadingSlice &
+  ListSlice;
 
 export const createEditorStore = (initProps?: Partial<EditorSlice>) => {
   const DEFAULT_PROPS: Omit<EditorSlice, "changeIndex"> = {
@@ -28,6 +33,7 @@ export const createEditorStore = (initProps?: Partial<EditorSlice>) => {
     ...createBlockSlice(...a),
     ...createHeadingSlice(...a),
     ...createTextSlice(...a),
+    ...createListSlice(...a),
   }));
 };
 

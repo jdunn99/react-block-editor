@@ -10,6 +10,7 @@ export function EditorInternal() {
 
   return (
     <div>
+      {JSON.stringify(blocks)}
       {blocks.map((block, index) => (
         <div
           key={block.id}

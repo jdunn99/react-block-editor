@@ -2,6 +2,7 @@ import React from "react";
 import { Block } from "../store/blockSlice";
 import { BlockHeading } from "./blockHeading";
 import { BlockParagraph } from "./blockParagraph";
+import { BlockList } from "./blockList";
 
 interface EditorBlockProps {
   index: number;
@@ -33,6 +34,8 @@ export function EditorBlocks({ block, index, isLatest }: EditorBlockProps) {
           ref={isLatest ? inputRef : undefined}
         />
       );
+    case "list":
+      return <BlockList index={index} block={block} />;
     default:
       return null;
   }
