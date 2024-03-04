@@ -13,11 +13,13 @@ export interface Block {
 }
 
 export interface BlockSlice {
-  // changeBlockTag(): void
   getBlocks(): Block[];
   deleteBlock(index: number): void;
   getBlockById(id: string): Block | undefined;
   getBlockByIndex(index: number): Block | undefined;
+  changeBlockOrder(oldIndex: number, newIndex: number): void;
+  size(): number;
+  changeBlockType(index: number, newType: BlockType): void;
 }
 
 export function addBlock<T>(
@@ -66,6 +68,9 @@ export const createBlockSlice: StateCreator<Editor, [], [], BlockSlice> = (
   set,
   get
 ) => ({
+  size() {
+    return get().blocks.length;
+  },
   deleteBlock(index) {
     return set((state) => ({
       blocks: state.blocks.filter((_, idx) => index !== idx),
@@ -76,9 +81,51 @@ export const createBlockSlice: StateCreator<Editor, [], [], BlockSlice> = (
     return get().blocks.find((block) => block.id === id);
   },
   getBlockByIndex(index) {
-    if (index > get().blocks.length - 1) return get().blocks[index];
+    return get().blocks[index];
   },
   getBlocks() {
     return get().blocks;
+  },
+  changeBlockOrder(oldIndex, newIndex) {
+    return set((state) => {
+      const blocks = [...state.blocks];
+      const temp = blocks[oldIndex];
+      blocks[oldIndex] = blocks[newIndex];
+      blocks[newIndex] = temp;
+
+      return {
+        blocks,
+        index: newIndex,
+      };
+    });
+  },
+  changeBlockType(index, newType) {
+    return set((state) => {
+      const blocks = [...state.blocks];
+      const block = blocks[index];
+
+      switch (newType) {
+        case "heading": {
+          if (block.type === "text") {
+            block.type = "heading";
+            (block.data as HeadingData).level = 1;
+          }
+          break;
+        }
+        case "text": {
+          if (block.type === "heading") {
+            block.type = "text";
+            delete (block.data as Partial<HeadingData>).level; // do i even need to do this ? probably not
+          }
+          break;
+        }
+        default:
+          break;
+      }
+
+      return {
+        blocks,
+      };
+    });
   },
 });

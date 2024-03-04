@@ -8,8 +8,9 @@ export type HeadingData = {
 } & TextData;
 
 export interface HeadingSlice {
-  updateHeadingBlock(index: number, data: HeadingData): void;
+  updateHeadingBlock(index: number, data: Partial<HeadingData>): void;
   addHeadingBlock(index: number, data: HeadingData): void;
+  changeHeadingLevel(index: number, level: number): void;
 }
 
 export const createHeadingSlice: StateCreator<Editor, [], [], HeadingSlice> = (
@@ -20,4 +21,12 @@ export const createHeadingSlice: StateCreator<Editor, [], [], HeadingSlice> = (
 
   updateHeadingBlock: (index, data) =>
     set((state) => updateBlock(state, data, index, "heading")),
+  changeHeadingLevel: (index, level) =>
+    set((state) => {
+      const blocks = [...state.blocks];
+      (blocks[index].data as HeadingData).level = level;
+      return {
+        blocks,
+      };
+    }),
 });
