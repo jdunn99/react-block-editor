@@ -8,15 +8,16 @@ export interface EditorSlice {
   blocks: Block[];
   index: number;
   mode: EditorMode;
+  changeIndex(index: number): void;
 }
 
-export const createEditorSlice: StateCreator<
-  Editor,
-  [],
-  [],
-  EditorSlice
-> = () => ({
+export const createEditorSlice: StateCreator<Editor, [], [], EditorSlice> = (
+  set
+) => ({
   blocks: [],
   index: 0,
   mode: "edit",
+  changeIndex(index) {
+    set(() => ({ index }));
+  },
 });

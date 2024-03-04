@@ -1,31 +1,29 @@
 import React from "react";
-import { useEditorContext } from "../lib/useEditorContext";
+import { useTextBlock } from "../lib/useTextBlock";
+import { Block } from "../store/blockSlice";
+import { HeadingData } from "../store/headingSlice";
 
 interface HeadingParagraphProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
+  block: Block;
   index: number;
-  level: number;
 }
 
 export const BlockHeading = React.forwardRef<
   HTMLParagraphElement,
   HeadingParagraphProps
->(({ index, level, ...rest }, ref) => {
-  const updateHeadingBlock = useEditorContext(
-    (state) => state.updateHeadingBlock
-  );
+>(({ block, index, ...rest }, ref) => {
+  const { onBlur, onKeyDown } = useTextBlock(block, index);
 
-  function onBlur(event: React.FocusEvent<HTMLHeadingElement>) {
-    updateHeadingBlock(index, {
-      text: event.target.innerHTML,
-      level,
-    });
-  }
-
-  return React.createElement(`h${level}`, {
+  return React.createElement(`h${(block.data as HeadingData).level}`, {
     onBlur,
     ref,
+    onKeyDown,
     contentEditable: true,
+    autoFocus: true,
+    dangerouslySetInnerHTML: {
+      __html: block.data.text,
+    },
     ...rest,
   });
 });

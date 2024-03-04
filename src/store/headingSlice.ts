@@ -16,7 +16,7 @@ export const createHeadingSlice: StateCreator<Editor, [], [], HeadingSlice> = (
   set
 ) => ({
   addHeadingBlock: (index, data) =>
-    set((state) => addBlock(state, data, index, "text")),
+    set((state) => addBlock(state, data, index, "heading")),
 
   updateHeadingBlock: (index, data) =>
     set((state) => updateBlock(state, data, index, "heading")),

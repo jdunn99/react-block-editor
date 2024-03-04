@@ -1,39 +1,32 @@
-import { HeadingData } from "../store/headingSlice";
-import { BlockParagraph } from "./blockParagraph";
-import { BlockHeading } from "./blockHeading";
 import { useEditorContext } from "../lib/useEditorContext";
+import { EditorBlocks } from "./editorBlocks";
 
 export function EditorInternal() {
   const blocks = useEditorContext((state) => state.blocks);
   const addText = useEditorContext((state) => state.addTextBlock);
+  const changeIndex = useEditorContext((state) => state.changeIndex);
+  const editorIndex = useEditorContext((state) => state.index);
 
   return (
     <div>
       <button
         onClick={() =>
           addText(0, {
-            text: "Test Block",
+            text: "Test Block <b>Test</b>",
           })
         }
       >
         Add block
       </button>
-      {JSON.stringify(blocks)}
-      {blocks.map(({ data, id, type }, index) =>
-        type === "heading" ? (
-          <BlockHeading
+      {blocks.map((block, index) => (
+        <div key={block.id} onFocus={() => changeIndex(index)}>
+          <EditorBlocks
+            block={block}
             index={index}
-            level={(data as HeadingData).level}
-            dangerouslySetInnerHTML={{ __html: data.text }}
+            isLatest={index === editorIndex + 1}
           />
-        ) : (
-          <BlockParagraph
-            index={index}
-            key={id}
-            dangerouslySetInnerHTML={{ __html: data.text }}
-          />
-        )
-      )}
+        </div>
+      ))}
     </div>
   );
 }

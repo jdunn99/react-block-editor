@@ -1,22 +1,27 @@
 import React from "react";
-import { useEditorContext } from "../lib/useEditorContext";
+import { Block } from "../store/blockSlice";
+import { useTextBlock } from "../lib/useTextBlock";
 
 interface BlockParagraphProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
   index: number;
+  block: Block;
 }
 
 export const BlockParagraph = React.forwardRef<
   HTMLParagraphElement,
   BlockParagraphProps
->(({ index, ...rest }, ref) => {
-  const updateTextBlock = useEditorContext((state) => state.updateTextBlock);
+>(({ block, index, ...rest }, ref) => {
+  const { onBlur, onKeyDown } = useTextBlock(block, index);
 
-  function onBlur(event: React.FocusEvent<HTMLParagraphElement>) {
-    updateTextBlock(index, {
-      text: event.target.innerHTML,
-    });
-  }
-
-  return <p ref={ref} contentEditable onBlur={onBlur} {...rest} />;
+  return (
+    <p
+      ref={ref}
+      contentEditable
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      dangerouslySetInnerHTML={{ __html: block.data.text }}
+      {...rest}
+    />
+  );
 });
