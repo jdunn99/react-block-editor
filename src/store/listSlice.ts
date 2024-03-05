@@ -25,12 +25,26 @@ function getListItem(
   return arr[indices[indices.length - 1]];
 }
 
+function getParentAndChild(block: Block, indices: number[]) {
+  const child = getListItem(block, indices);
+  const childIndex = indices.pop() || 0;
+  const parent = getListItem(block, indices);
+
+  return {
+    child,
+    childIndex,
+    parent,
+  };
+}
+
 export interface ListSlice {
   addListBlock(index: number, data: ListData): void;
   updateListItem(blockIndex: number, listItemIndex: number, data: string): void;
   addListItem(index: number, indices: number[]): void;
   deleteListIem(index: number, indices: number[]): void;
   updateList(index: number, indices: number[], data: string): void;
+  indentList(index: number, indices: number[]): void;
+  unindentList(index: number, indices: number[]): void;
 }
 
 export const createListSlice: StateCreator<Editor, [], [], ListSlice> = (
@@ -91,33 +105,98 @@ export const createListSlice: StateCreator<Editor, [], [], ListSlice> = (
       const block = blocks[index];
       const b = block.data as ListData;
 
-      const elementToBeDeleted = getListItem(block, indices);
+      const { child, parent, childIndex } = getParentAndChild(block, indices);
 
-      if (!elementToBeDeleted) {
+      if (!child) {
         return state;
       }
 
-      const { children } = elementToBeDeleted;
-      const elementToBeDeletedIndex = indices.pop() || 0;
-      const parentElement = getListItem(block, indices);
+      const { children } = child;
 
-      if (parentElement) {
-        if (children && parentElement.children) {
-          parentElement.children.splice(
-            elementToBeDeletedIndex,
-            1,
-            ...children
-          );
+      if (parent) {
+        if (children && parent.children) {
+          parent.children.splice(childIndex, 1, ...children);
+        } else {
+          parent.children?.splice(childIndex, 1);
         }
       } else {
-        if (elementToBeDeletedIndex === 0 && b.data.length === 1) {
+        if (childIndex === 0 && b.data.length === 1) {
           return {
             blocks: blocks.filter((_, idx) => idx !== index),
             index: Math.max(0, index - 1),
           };
         } else {
-          b.data.splice(elementToBeDeletedIndex, 1);
+          b.data.splice(childIndex, 1);
         }
+      }
+
+      return {
+        blocks,
+      };
+    });
+  },
+  indentList(index, indices) {
+    return set((state) => {
+      const blocks = [...state.blocks];
+      const block = blocks[index];
+      const b = block.data as ListData;
+
+      const { child, parent, childIndex } = getParentAndChild(block, indices);
+      if (!child) {
+        return state;
+      }
+
+      if (childIndex !== 0) {
+        const sibling = !parent
+          ? b.data[childIndex - 1]
+          : parent.children![childIndex - 1];
+
+        if (sibling.children) {
+          sibling.children.push(child);
+        } else {
+          sibling.children = [child];
+        }
+
+        if (!parent) {
+          b.data.splice(childIndex, 1);
+        } else {
+          parent.children!.splice(childIndex, 1);
+        }
+      }
+
+      return {
+        blocks,
+      };
+    });
+  },
+  unindentList(index, indices) {
+    return set((state) => {
+      const blocks = [...state.blocks];
+      const block = blocks[index];
+      const b = block.data as ListData;
+
+      // find grandfather node. find all sibling nodes. swap and delete.
+
+      const { child, parent, childIndex } = getParentAndChild(block, indices);
+      if (!child) {
+        return state;
+      }
+
+      const { childIndex: parentIndex, parent: grandfather } =
+        getParentAndChild(block, indices);
+
+      if (!child || !parent) {
+        return state;
+      }
+
+      const siblings = parent.children!.slice(childIndex);
+
+      if (!grandfather) {
+        b.data.splice(parentIndex + 1, 0, ...siblings);
+        parent.children = parent.children?.slice(0, childIndex);
+      } else {
+        grandfather.children?.splice(parentIndex + 1, 0, ...siblings);
+        parent.children = parent.children?.slice(0, childIndex);
       }
 
       return {

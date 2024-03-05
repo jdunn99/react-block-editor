@@ -6,6 +6,7 @@ import { useEditorContext } from "@/lib/useEditorContext";
 enum ListHotkeys {
   Enter = "Enter",
   Backspace = "Backspace",
+  Tab = "Tab",
 }
 
 interface ListBlockProps extends React.HTMLAttributes<HTMLParagraphElement> {
@@ -24,13 +25,17 @@ function ListInternal({ blockIndex, data, type, indices }: ListInternalProps) {
   const updateList = useEditorContext((state) => state.updateList);
   const addListItem = useEditorContext((state) => state.addListItem);
   const deleteListItem = useEditorContext((state) => state.deleteListIem);
+  const indentList = useEditorContext((state) => state.indentList);
+  const unindentList = useEditorContext((state) => state.unindentList);
 
   function onBlur(event: React.FocusEvent<Element>, indices: number[]) {
     updateList(blockIndex, indices, event.target.innerHTML);
   }
 
+  // Calls to updateList are only temporary until I get focus refs working with lists
+  // Might be a while for that though so they stay for now
   function onKeyDown(event: React.KeyboardEvent, indices: number[]) {
-    const { key, currentTarget } = event;
+    const { shiftKey, key, currentTarget } = event;
     switch (key) {
       case ListHotkeys.Enter: {
         event.preventDefault();
@@ -40,6 +45,17 @@ function ListInternal({ blockIndex, data, type, indices }: ListInternalProps) {
       }
       case ListHotkeys.Backspace: {
         if (currentTarget.innerHTML === "") deleteListItem(blockIndex, indices);
+        break;
+      }
+      case ListHotkeys.Tab: {
+        event.preventDefault();
+        updateList(blockIndex, indices, currentTarget.innerHTML);
+
+        if (shiftKey) {
+          unindentList(blockIndex, indices);
+        } else {
+          indentList(blockIndex, indices);
+        }
         break;
       }
       default:

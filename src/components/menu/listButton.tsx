@@ -9,26 +9,7 @@ export function AddListButton({ index }: BlockMenuProps) {
       onClick={() =>
         addListBlock(index, {
           type: "unordered",
-          data: [
-            { value: "Hi" },
-            {
-              value: "Test",
-              children: [
-                {
-                  value: "Nested level",
-                  children: [
-                    {
-                      value: "Wow this is deeply nested",
-                      children: [
-                        { value: "I know right" },
-                        { value: "Cheeseburger" },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
+          data: [{ value: "Hi" }],
         })
       }
     >
