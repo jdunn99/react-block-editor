@@ -1,6 +1,6 @@
 import React from "react";
 import { Block } from "../store/blockSlice";
-import { ListData } from "@/store/listSlice";
+import { ListData, ListInternalData, ListType } from "@/store/listSlice";
 import { useEditorContext } from "@/lib/useEditorContext";
 
 enum ListHotkeys {
@@ -13,21 +13,33 @@ interface ListBlockProps extends React.HTMLAttributes<HTMLParagraphElement> {
   index: number;
 }
 
-export function BlockList({ index, block }: ListBlockProps) {
-  const updateListItem = useEditorContext((state) => state.updateListItem);
-  const addListItem = useEditorContext((state) => state.addListItem);
-  const ref = React.useRef<HTMLLIElement>(null);
+interface ListInternalProps {
+  data: ListInternalData[];
+  type: ListType;
+  blockIndex: number;
+  indices: number[];
+}
 
-  function onBlur(event: React.FocusEvent<HTMLLIElement>, listIndex: number) {
-    updateListItem(index, listIndex, event.target.innerHTML);
+function ListInternal({ blockIndex, data, type, indices }: ListInternalProps) {
+  const updateList = useEditorContext((state) => state.updateList);
+  const addListItem = useEditorContext((state) => state.addListItem);
+  const deleteListItem = useEditorContext((state) => state.deleteListIem);
+
+  function onBlur(event: React.FocusEvent<Element>, indices: number[]) {
+    updateList(blockIndex, indices, event.target.innerHTML);
   }
 
-  function onKeydown(event: React.KeyboardEvent, listIndex: number) {
-    const { key } = event;
+  function onKeyDown(event: React.KeyboardEvent, indices: number[]) {
+    const { key, currentTarget } = event;
     switch (key) {
       case ListHotkeys.Enter: {
         event.preventDefault();
-        addListItem(index, listIndex, "");
+        updateList(blockIndex, indices, currentTarget.innerHTML);
+        addListItem(blockIndex, indices);
+        break;
+      }
+      case ListHotkeys.Backspace: {
+        if (currentTarget.innerHTML === "") deleteListItem(blockIndex, indices);
         break;
       }
       default:
@@ -35,22 +47,36 @@ export function BlockList({ index, block }: ListBlockProps) {
     }
   }
 
-  React.useEffect(() => {
-    ref.current?.focus();
-  }, [ref]);
-
   return React.createElement(
-    (block.data as ListData).type === "ordered" ? "ol" : "ul",
+    type === "ordered" ? "ol" : "ul",
     {},
-    (block.data as ListData).data.map((item, listIndex) => (
-      <li
-        ref={ref}
-        onBlur={(event) => onBlur(event, listIndex)}
-        contentEditable
-        onKeyDown={(event) => onKeydown(event, listIndex)}
-        dangerouslySetInnerHTML={{ __html: item }}
-        key={listIndex}
-      />
+    data.map((item, listIndex) => (
+      <li style={{ width: "100%" }} key={crypto.randomUUID()}>
+        <span
+          style={{ width: "100%" }}
+          onBlur={(event) => onBlur(event, indices.concat(listIndex))}
+          onKeyDown={(event) => onKeyDown(event, indices.concat(listIndex))}
+          contentEditable
+          dangerouslySetInnerHTML={{ __html: item.value }}
+        />
+        {item.children && (
+          <ListInternal
+            data={item.children}
+            type={type}
+            key={crypto.randomUUID()}
+            blockIndex={blockIndex}
+            indices={indices.concat(listIndex)}
+          />
+        )}
+      </li>
     ))
+  );
+}
+
+export function BlockList({ index, block }: ListBlockProps) {
+  const b = block.data as ListData;
+
+  return (
+    <ListInternal data={b.data} type={b.type} indices={[]} blockIndex={index} />
   );
 }
